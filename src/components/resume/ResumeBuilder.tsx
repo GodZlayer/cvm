@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { generatePDF } from "@/utils/pdfGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import PersonalDetails from "./sections/PersonalDetails";
 import WorkExperience from "./sections/WorkExperience";
 import Education from "./sections/Education";
 import Skills from "./sections/Skills";
 import ResumePreview from "./ResumePreview";
+import ColorPalette from "./ColorPalette";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import LanguageToggle from "../LanguageToggle";
+import { TemplateType, templateNames, ColorScheme } from "./templates";
 
 export type ResumeData = {
   personalDetails: {
@@ -40,6 +45,8 @@ export type ResumeData = {
     description: string;
   }[];
   skills: string[];
+  template: TemplateType;
+  colorScheme: ColorScheme;
 };
 
 const defaultResumeData: ResumeData = {
@@ -55,6 +62,8 @@ const defaultResumeData: ResumeData = {
   workExperience: [],
   education: [],
   skills: [],
+  template: "modern",
+  colorScheme: "blue",
 };
 
 export default function ResumeBuilder() {
@@ -89,10 +98,25 @@ export default function ResumeBuilder() {
     }));
   };
 
+  const updateTemplate = (template: TemplateType) => {
+    setResumeData((prev) => ({
+      ...prev,
+      template,
+    }));
+  };
+
+  const updateColorScheme = (colorScheme: ColorScheme) => {
+    setResumeData((prev) => ({
+      ...prev,
+      colorScheme,
+    }));
+  };
+
   const handleNext = () => {
     if (activeTab === "personal") setActiveTab("work");
     else if (activeTab === "work") setActiveTab("education");
     else if (activeTab === "education") setActiveTab("skills");
+    else if (activeTab === "skills") setActiveTab("template");
   };
 
   const handlePrevious = () => {
@@ -120,11 +144,12 @@ export default function ResumeBuilder() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-card rounded-lg shadow-md p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-4 mb-6">
+            <TabsList className="grid grid-cols-5 mb-6">
               <TabsTrigger value="personal">{t.personal}</TabsTrigger>
               <TabsTrigger value="work">{t.work}</TabsTrigger>
               <TabsTrigger value="education">{t.education}</TabsTrigger>
               <TabsTrigger value="skills">{t.skills}</TabsTrigger>
+              <TabsTrigger value="template">Template</TabsTrigger>
             </TabsList>
 
             <TabsContent value="personal">
@@ -151,6 +176,35 @@ export default function ResumeBuilder() {
             <TabsContent value="skills">
               <Skills data={resumeData.skills} updateData={updateSkills} />
             </TabsContent>
+
+            <TabsContent value="template">
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h2 className="text-xl font-semibold">Escolha um template</h2>
+                  <RadioGroup
+                    value={resumeData.template}
+                    onValueChange={(value) =>
+                      updateTemplate(value as TemplateType)
+                    }
+                    className="space-y-3"
+                  >
+                    {Object.entries(templateNames).map(([key, name]) => (
+                      <div key={key} className="flex items-center space-x-2">
+                        <RadioGroupItem value={key} id={`template-${key}`} />
+                        <Label htmlFor={`template-${key}`}>{name}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                <Separator className="my-4" />
+
+                <ColorPalette
+                  selectedColor={resumeData.colorScheme}
+                  onColorChange={updateColorScheme}
+                />
+              </div>
+            </TabsContent>
           </Tabs>
 
           <div className="flex justify-between mt-6">
@@ -162,7 +216,7 @@ export default function ResumeBuilder() {
               {t.previous}
             </Button>
 
-            {activeTab === "skills" ? (
+            {activeTab === "template" ? (
               <Button onClick={handleExportPDF}>{t.exportPDF}</Button>
             ) : (
               <Button onClick={handleNext}>{t.next}</Button>
