@@ -22,6 +22,9 @@ export default function ResumePreview({ data }: ResumePreviewProps) {
     case "creative":
       return <CreativeTemplate data={data} />;
     case "modern":
+    case "elegant":
+    case "corporate":
+    case "simple":
     default:
       return <ModernTemplate data={data} />;
   }

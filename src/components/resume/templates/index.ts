@@ -9,10 +9,7 @@ export type TemplateType =
   | "classic"
   | "minimal"
   | "professional"
-  | "creative"
-  | "elegant"
-  | "corporate"
-  | "simple";
+  | "creative";
 
 export type ColorScheme =
   | "blue"
@@ -30,9 +27,6 @@ export const templateNames: Record<TemplateType, string> = {
   minimal: "Minimalista",
   professional: "Profissional",
   creative: "Criativo",
-  elegant: "Elegante",
-  corporate: "Corporativo",
-  simple: "Simples",
 };
 
 export const colorSchemeNames: Record<ColorScheme, string> = {
